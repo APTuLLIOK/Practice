@@ -1,8 +1,9 @@
 #include "stm32f10x.h"
+#include "GPIO_STM32F10x.h"
 
 #define INC_BTN 		4
 #define LED2 			5
-#define CURTIME_BTN 	6
+#define CLOCKTIME_BTN 	6
 #define ALARMTIME_BTN 	7
 
 typedef struct time_tag{
@@ -12,7 +13,15 @@ typedef struct time_tag{
 } time;
 
 static uint64_t TIM3_interrupts;
-static uint8_t currentTimeSetting = 0;
+static uint8_t clockTimeSetting;
+static uint8_t alarmTimeSetting;
+static uint8_t clockTimeBtnClick;
+static uint8_t alarmTimeBtnClick;
+static uint8_t incrementBtnClick;
+static uint8_t alarmIsOn;
+static uint8_t mutex;
+static uint8_t alarmSignal;
+static uint8_t mode;
 static time currentTime, alarmTime;
 
 void SystemCoreClockConfigure(void) {
@@ -43,37 +52,48 @@ void TIM3_Init() {
 	RCC -> APB1ENR |= RCC_APB1ENR_TIM3EN; 				 	 // Настройка таймера TIM3 (прерывание срабатывает каждую секунду)
 	TIM3 -> CR1 = TIM_CR1_CEN;										 
 
-	TIM3->PSC = (uint16_t)(SystemCoreClock * 2 / 1000 - 1);	     // Определение значений предделителя (длительность одного тика таймера) 
+	TIM3->PSC = (uint16_t)(SystemCoreClock / 1000 - 1);	     // Определение значений предделителя (длительность одного тика таймера) 
 	TIM3->ARR = 1000 - 1;									 // и регистра автоматичекой перезагрузки (количество тиков)
 			
 	TIM3->DIER |= TIM_DIER_UIE;								 // Включение прерываний
 	NVIC_EnableIRQ (TIM3_IRQn);										 
 }
 
-void GPIO_Init(void) {
-	RCC->APB2ENR |= (1ul << 2);                		 	 // Настройка порта GPIO 
+void GPIO_Init(void) {            		 	 
+	RCC->APB2ENR |= RCC_APB2ENR_IOPAEN; // Настройка порта GPIO 
 	
-	GPIOA->CRL &= ~(15ul << 4 * INC_BTN);              	 // Настройка подачи сигнала на порт PA4 (кнопка прибавления единицы к настраиваемому параметру (минуты или часы))
-	GPIOA->CRL |=  (8ul << 4 * INC_BTN);
+	GPIO_PinConfigure(GPIOA, LED2, GPIO_OUT_PUSH_PULL, GPIO_MODE_OUT10MHZ); // Настройка подачи сигнала на светодиод LD2 (порт PA5)
+	
+	GPIO_PinConfigure(GPIOA, INC_BTN, GPIO_IN_PULL_DOWN, GPIO_MODE_INPUT); // Настройка подачи сигнала на порт PA4 (кнопка прибавления единицы к настраиваемому параметру (минуты или часы))
+	GPIO_PinConfigure(GPIOB, CLOCKTIME_BTN, GPIO_IN_PULL_DOWN, GPIO_MODE_INPUT); // Настройка подачи сигнала на порт PA6 (кнопка настройки текущего времени)
+	GPIO_PinConfigure(GPIOC, ALARMTIME_BTN, GPIO_IN_PULL_DOWN, GPIO_MODE_INPUT); // Настройка подачи сигнала на порт PA7 (кнопка настройки времени срабатывания будильника)
 
-	GPIOA->CRL &= ~(15ul << 4 * LED2);              	 // Настройка подачи сигнала на светодиод LD2 (порт PA5)
-	GPIOA->CRL |=  (1ul << 4 * LED2);
+//	GPIOA->CRL &= ~(15ul << 4 * LED2);              	 
+//	GPIOA->CRL |=  (1ul << 4 * LED2);
+}
+
+void NVIC_InputInit()
+{
+	RCC->APB2ENR |= RCC_APB2ENR_AFIOEN;
 	
-	GPIOA->CRL &= ~(15ul << 4 * CURTIME_BTN);            // Настройка подачи сигнала на порт PA6 (кнопка настройки текущего времени)
-	GPIOA->CRL |=  (8ul << 4 * CURTIME_BTN);
-	
-	GPIOA->CRL &= ~(15ul << 4 * ALARMTIME_BTN);          // Настройка подачи сигнала на порт PA7 (кнопка настройки времени срабатывания будильника)
-	GPIOA->CRL |=  (8ul << 4 * ALARMTIME_BTN);
+	AFIO->EXTICR[1] |= AFIO_EXTICR2_EXTI4_PA | AFIO_EXTICR2_EXTI6_PA | AFIO_EXTICR2_EXTI7_PA; // interrupt source
+	EXTI->IMR |= EXTI_IMR_MR4 | EXTI_IMR_MR6 | EXTI_IMR_MR7;
+	EXTI->RTSR |= EXTI_RTSR_TR4 | EXTI_RTSR_TR6 | EXTI_RTSR_TR7;
+	NVIC_EnableIRQ(EXTI4_IRQn);
+	NVIC_EnableIRQ(EXTI9_5_IRQn);
 }
 
 /* Включение светодиода */
-void LED_ON() {
-	GPIOA->BSRR = 1ul << 5;                                  
+void ALARM_ON() {
+	alarmSignal = 1;
+	GPIOA->BSRR = 1ul << LED2;                                  
 }
 
 /* Выключение светодиода */
-void LED_OFF() {											 
-	GPIOA->BSRR = 1ul << 21;
+void ALARM_OFF() {
+	alarmSignal = 0;
+	alarmIsOn = 0;	
+	GPIOA->BSRR = 1ul << (LED2 + 16);
 }
 
 /* Настройка обработчика прерываний для TIM3 */
@@ -81,11 +101,35 @@ void TIM3_IRQHandler() {
 	TIM3->SR &= ~TIM_SR_UIF;												// Снятие флага события обновления
 	TIM3_interrupts++;														// Увеличение счетчика прерываний
 	
-	if(!currentTimeSetting)
+	if(!clockTimeSetting)
 	{
 		currentTime.hours = (uint8_t)(TIM3_interrupts % 86400 / 3600);
 		currentTime.minutes = (uint8_t)(TIM3_interrupts % 3600 / 60);
 		currentTime.seconds = (uint8_t)(TIM3_interrupts % 60);
+	}
+}
+
+void EXTI4_IRQHandler(void)
+{
+	incrementBtnClick = (!mutex) & (clockTimeSetting | alarmTimeSetting | alarmSignal);
+	EXTI->PR |= EXTI_PR_PR4; // Очищаем флаг
+}
+
+void EXTI9_5_IRQHandler(void)
+{
+	if(!mutex) 
+	{
+		if (EXTI->PR & (1ul << CLOCKTIME_BTN)) //проверяем прерывание от EXTI6
+		{ 
+			clockTimeBtnClick = 1;
+			EXTI->PR |= (1ul << CLOCKTIME_BTN);  // Очищаем флаг
+		}
+		  
+		if (EXTI->PR & (1ul << ALARMTIME_BTN)) //проверяем прерывание от EXTI6
+		{ 
+			alarmTimeBtnClick = 1;
+			EXTI->PR |= (1ul << ALARMTIME_BTN);  // Очищаем флаг
+		}
 	}
 }
 
@@ -94,49 +138,61 @@ uint8_t compareTime(time *time_1, time *time_2)
 	return (time_1->hours == time_2->hours) && (time_1->minutes == time_2->minutes);
 }
 
-void Delay()
+void TimeSet(time *p_time, uint8_t *buttonClick)
 {
-	uint32_t cnt = SystemCoreClock / 5;
-	while(--cnt);
-}
-
-uint8_t ButtonIsPressed(uint8_t portNum)
-{
-	if(GPIOA->IDR & (1ul << portNum))
-	{
-		Delay();
-		return ( (GPIOA->IDR & (1ul << portNum)) ? 1 : 0 );
-	}
-	return 0;
-}
-
-static void TimeSet(time *p_time, uint8_t button)
-{
-	uint8_t mode;
 	p_time->hours = 0;
 	p_time->minutes = 0;
 	
 	mode = 0;
+	*buttonClick = 0;
 	while(1)
 	{
 		switch(mode)
 		{
 			case 0:
 			{
-				if(ButtonIsPressed(INC_BTN))
-					p_time->minutes = (p_time->minutes + 1) % 60;
+				if(incrementBtnClick)
+				{
+					mutex = 1;
+					{
+						p_time->minutes = (p_time->minutes + 1) % 60;
+						incrementBtnClick = 0;
+					}
+					mutex = 0;
+				}
 				
-				if(ButtonIsPressed(button))
-					mode = 1;
+				if(*buttonClick)
+				{
+					mutex = 1;
+					{
+						mode = 1;
+						*buttonClick = 0;
+					}
+					mutex = 0;
+				}
 			}
 				break;
 			case 1:
 			{
-				if(ButtonIsPressed(INC_BTN))
-					p_time->hours = (p_time->hours + 1) % 24;
+				if(incrementBtnClick)
+				{
+					mutex = 1;
+					{
+						p_time->hours = (p_time->hours + 1) % 24;
+						incrementBtnClick = 0;
+					}
+					mutex = 0;
+				}
 				
-				if(ButtonIsPressed(button))
-					mode = 2;
+				if(*buttonClick)
+				{
+					mutex = 1;
+					{
+						mode = 2;
+						*buttonClick = 0;
+					}
+					mutex = 0;
+				}
 			}
 				break;
 			default: 
@@ -153,29 +209,33 @@ int main (void){
 			
 	GPIO_Init();
 	TIM3_Init();
+	NVIC_InputInit();
 	while (1) 
-	{	
-		if(ButtonIsPressed(CURTIME_BTN))
+	{
+		if(!alarmSignal && alarmIsOn && compareTime(&currentTime, &alarmTime))
 		{
-			currentTimeSetting = 1;
-			TimeSet(&currentTime, CURTIME_BTN);
+			ALARM_ON();
+		}
+		
+		if(alarmSignal && incrementBtnClick && !clockTimeSetting && !alarmTimeSetting)
+		{
+			ALARM_OFF();
+		}
+		
+		if(clockTimeBtnClick)
+		{
+			clockTimeSetting = 1;
+			TimeSet(&currentTime, &clockTimeBtnClick);
 			TIM3_interrupts = currentTime.hours * 3600 + currentTime.minutes * 60;
-			currentTimeSetting = 0;
+			clockTimeSetting = 0;
 		}
 		
-		if(ButtonIsPressed(ALARMTIME_BTN))
+		if(alarmTimeBtnClick)
 		{
-			TimeSet(&alarmTime, ALARMTIME_BTN);
-		}
-		
-		if(compareTime(&currentTime, &alarmTime))
-		{
-			LED_ON();
-		}
-		
-		if(ButtonIsPressed(INC_BTN))
-		{
-			LED_OFF();
+			alarmTimeSetting = 1;
+			TimeSet(&alarmTime, &alarmTimeBtnClick);
+			alarmIsOn = 1;
+			alarmTimeSetting = 0;
 		}
 	}
 }
