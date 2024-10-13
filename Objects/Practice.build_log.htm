@@ -27,7 +27,134 @@ Project File Date:  10/12/2024
 <h2>Output:</h2>
 *** Using Compiler 'V6.18', folder: 'C:\Keil_v5\ARM\ARMCLANG\Bin'
 Build target 'Target 1'
-".\Objects\Practice.axf" - 0 Error(s), 0 Warning(s).
+main.c(2): warning: In file included from...
+C:/Users/Vladislav/AppData/Local/Arm/Packs/Keil/STM32F1xx_DFP/2.4.1/RTE_Driver\GPIO_STM32F10x.h(39): warning: // comments are not allowed in this language [-Wcomment]
+/// GPIO Pin identifier
+^
+C:/Users/Vladislav/AppData/Local/Arm/Packs/Keil/STM32F1xx_DFP/2.4.1/RTE_Driver\GPIO_STM32F10x.h(173): warning: '_Bool' is a C99 extension [-Wc99-extensions]
+extern void GPIO_PortClock (GPIO_TypeDef *GPIOx, bool enable);
+                                                 ^
+C:\Keil_v5\ARM\ARMCLANG\Bin\..\include\stdbool.h(15): note: expanded from macro 'bool'
+    #define bool _Bool
+                 ^
+main.c(2): warning: In file included from...
+C:/Users/Vladislav/AppData/Local/Arm/Packs/Keil/STM32F1xx_DFP/2.4.1/RTE_Driver\GPIO_STM32F10x.h(182): warning: '_Bool' is a C99 extension [-Wc99-extensions]
+extern bool GPIO_GetPortClockState (GPIO_TypeDef *GPIOx);
+       ^
+C:\Keil_v5\ARM\ARMCLANG\Bin\..\include\stdbool.h(15): note: expanded from macro 'bool'
+    #define bool _Bool
+                 ^
+main.c(2): warning: In file included from...
+C:/Users/Vladislav/AppData/Local/Arm/Packs/Keil/STM32F1xx_DFP/2.4.1/RTE_Driver\GPIO_STM32F10x.h(197): warning: '_Bool' is a C99 extension [-Wc99-extensions]
+bool GPIO_PinConfigure(GPIO_TypeDef      *GPIOx,
+^
+C:\Keil_v5\ARM\ARMCLANG\Bin\..\include\stdbool.h(15): note: expanded from macro 'bool'
+    #define bool _Bool
+                 ^
+main.c(2): warning: In file included from...
+C:/Users/Vladislav/AppData/Local/Arm/Packs/Keil/STM32F1xx_DFP/2.4.1/RTE_Driver\GPIO_STM32F10x.h(246): warning: implicit conversion loses integer precision: 'volatile uint32_t' (aka 'volatile unsigned int') to 'uint16_t' (aka 'unsigned short') [-Wimplicit-int-conversion]
+  return (GPIOx->IDR);
+  ~~~~~~  ~~~~~~~^~~
+main.c(4): warning: // comments are not allowed in this language [-Wcomment]
+#define INC_BTN                 4       // <CA><ED><EE><EF><EA><E0> <F3><E2><E5><EB><E8><F7><E5><ED><E8><FF> <E8><E7><EC><E5><ED><FF><E5><EC><EE><E3><EE> <EF><E0><F0><E0><EC><E5><F2><F0><E0> (<EC><E8><ED><F3><F2><FB> <E8><EB><E8> <F1><E5><EA><F3><ED><E4><FB>) <ED><E0> 1, <F2><E0><EA><E6><E5> <E8><F1><EF><EE><EB><FC><E7><F3><E5><F2><F1><FF> <E4><EB><FF> <EE><F2><EA><EB><FE><F7><E5><ED><E8><FF> <F1><E8><E3><ED><E0><EB><E0> <F1><F0><E0><E1><EE><F2><E0><E2><F8><E5><E3><EE> <E1><F3><E4><E8><EB><FC><ED><E8><EA><E0>
+                                        ^
+main.c(33): warning: no previous prototype for function 'SystemCoreClockConfigure' [-Wmissing-prototypes]
+void SystemCoreClockConfigure(void) {
+     ^
+main.c(33): note: declare 'static' if the function is not intended to be used outside of this translation unit
+void SystemCoreClockConfigure(void) {
+^
+static 
+main.c(58): warning: no previous prototype for function 'TIM3_Init' [-Wmissing-prototypes]
+void TIM3_Init() {                                                                                                                       
+     ^
+main.c(58): note: declare 'static' if the function is not intended to be used outside of this translation unit
+void TIM3_Init() {                                                                                                                       
+^
+static 
+main.c(58): warning: this old-style function definition is not preceded by a prototype [-Wstrict-prototypes]
+void TIM3_Init() {                                                                                                                       
+              ^
+main.c(70): warning: no previous prototype for function 'GPIO_Init' [-Wmissing-prototypes]
+void GPIO_Init(void) {                                   
+     ^
+main.c(70): note: declare 'static' if the function is not intended to be used outside of this translation unit
+void GPIO_Init(void) {                                   
+^
+static 
+main.c(81): warning: no previous prototype for function 'NVIC_InputInit' [-Wmissing-prototypes]
+void NVIC_InputInit()
+     ^
+main.c(81): note: declare 'static' if the function is not intended to be used outside of this translation unit
+void NVIC_InputInit()
+^
+static 
+main.c(81): warning: this old-style function definition is not preceded by a prototype [-Wstrict-prototypes]
+void NVIC_InputInit()
+                   ^
+main.c(93): warning: no previous prototype for function 'ALARM_ON' [-Wmissing-prototypes]
+void ALARM_ON() {
+     ^
+main.c(93): note: declare 'static' if the function is not intended to be used outside of this translation unit
+void ALARM_ON() {
+^
+static 
+main.c(93): warning: this old-style function definition is not preceded by a prototype [-Wstrict-prototypes]
+void ALARM_ON() {
+             ^
+main.c(99): warning: no previous prototype for function 'ALARM_OFF' [-Wmissing-prototypes]
+void ALARM_OFF() {
+     ^
+main.c(99): note: declare 'static' if the function is not intended to be used outside of this translation unit
+void ALARM_OFF() {
+^
+static 
+main.c(99): warning: this old-style function definition is not preceded by a prototype [-Wstrict-prototypes]
+void ALARM_OFF() {
+              ^
+main.c(106): warning: no previous prototype for function 'TIM3_IRQHandler' [-Wmissing-prototypes]
+void TIM3_IRQHandler() {                                                                                                        
+     ^
+main.c(106): note: declare 'static' if the function is not intended to be used outside of this translation unit
+void TIM3_IRQHandler() {                                                                                                        
+^
+static 
+main.c(106): warning: this old-style function definition is not preceded by a prototype [-Wstrict-prototypes]
+void TIM3_IRQHandler() {                                                                                                        
+                    ^
+main.c(125): warning: no previous prototype for function 'EXTI4_IRQHandler' [-Wmissing-prototypes]
+void EXTI4_IRQHandler(void)
+     ^
+main.c(125): note: declare 'static' if the function is not intended to be used outside of this translation unit
+void EXTI4_IRQHandler(void)
+^
+static 
+main.c(132): warning: no previous prototype for function 'EXTI9_5_IRQHandler' [-Wmissing-prototypes]
+void EXTI9_5_IRQHandler(void)
+     ^
+main.c(132): note: declare 'static' if the function is not intended to be used outside of this translation unit
+void EXTI9_5_IRQHandler(void)
+^
+static 
+main.c(145): warning: no previous prototype for function 'compareTime' [-Wmissing-prototypes]
+uint8_t compareTime(time *time_1, time *time_2)
+        ^
+main.c(145): note: declare 'static' if the function is not intended to be used outside of this translation unit
+uint8_t compareTime(time *time_1, time *time_2)
+^
+static 
+main.c(154): warning: no previous prototype for function 'TimeSet' [-Wmissing-prototypes]
+void TimeSet(time *p_time, uint8_t *p_buttonClick)
+     ^
+main.c(154): note: declare 'static' if the function is not intended to be used outside of this translation unit
+void TimeSet(time *p_time, uint8_t *p_buttonClick)
+^
+static 
+22 warnings generated.
+compiling main.c...
+linking...
+Program Size: Code=3824 RO-data=284 RW-data=4 ZI-data=1656  
+".\Objects\Practice.axf" - 0 Error(s), 22 Warning(s).
 
 <h2>Software Packages used:</h2>
 
@@ -78,13 +205,13 @@ Package Vendor: Keil
       Source file:   Boards/Keil/MCBSTM32C/Common/LED_MCBSTM32C.c
 
    * Component: Keil::Device:GPIO:1.3
-      Source file:   RTE_Driver/GPIO_STM32F10x.c
       Include file:  RTE_Driver/GPIO_STM32F10x.h
+      Source file:   RTE_Driver/GPIO_STM32F10x.c
 
    * Component: Keil::Device:Startup:1.0.0
       Source file:   Device/Source/system_stm32f10x.c
-      Source file:   Device/Source/ARM/STM32F1xx_OPT.s
       Include file:  RTE_Driver/Config/RTE_Device.h
+      Source file:   Device/Source/ARM/STM32F1xx_OPT.s
       Source file:   Device/Source/ARM/startup_stm32f10x_md.s
 Build Time Elapsed:  00:00:00
 </pre>

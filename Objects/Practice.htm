@@ -3,7 +3,7 @@
 <title>Static Call Graph - [.\Objects\Practice.axf]</title></head>
 <body><HR>
 <H1>Static Call Graph for image .\Objects\Practice.axf</H1><HR>
-<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 6180002: Last Updated: Sat Oct 12 23:14:30 2024
+<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 6180002: Last Updated: Sun Oct 13 13:44:10 2024
 <BR><P>
 <H3>Maximum Stack Usage =         96 bytes + Unknown(Functions without stacksize, Cycles, Untraceable Function Pointers)</H3><H3>
 Call chain for Maximum Stack Depth:</H3>
@@ -482,10 +482,10 @@ Global Symbols
 <BR><BR>[Called By]<UL><LI><a href="#[41]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;main
 </UL>
 
-<P><STRONG><a name="[14]"></a>EXTI4_IRQHandler</STRONG> (Thumb, 80 bytes, Stack size 0 bytes, main.o(.text.EXTI4_IRQHandler))
+<P><STRONG><a name="[14]"></a>EXTI4_IRQHandler</STRONG> (Thumb, 62 bytes, Stack size 0 bytes, main.o(.text.EXTI4_IRQHandler))
 <BR>[Address Reference Count : 1]<UL><LI> startup_stm32f10x_md.o(RESET)
 </UL>
-<P><STRONG><a name="[21]"></a>EXTI9_5_IRQHandler</STRONG> (Thumb, 114 bytes, Stack size 0 bytes, main.o(.text.EXTI9_5_IRQHandler))
+<P><STRONG><a name="[21]"></a>EXTI9_5_IRQHandler</STRONG> (Thumb, 58 bytes, Stack size 0 bytes, main.o(.text.EXTI9_5_IRQHandler))
 <BR>[Address Reference Count : 1]<UL><LI> startup_stm32f10x_md.o(RESET)
 </UL>
 <P><STRONG><a name="[4b]"></a>GPIO_GetPortClockState</STRONG> (Thumb, 284 bytes, Stack size 8 bytes, gpio_stm32f10x.o(.text.GPIO_GetPortClockState))
@@ -559,7 +559,7 @@ Global Symbols
 <BR>[Called By]<UL><LI><a href="#[41]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;main
 </UL>
 
-<P><STRONG><a name="[58]"></a>TimeSet</STRONG> (Thumb, 298 bytes, Stack size 12 bytes, main.o(.text.TimeSet))
+<P><STRONG><a name="[58]"></a>TimeSet</STRONG> (Thumb, 246 bytes, Stack size 12 bytes, main.o(.text.TimeSet))
 <BR><BR>[Stack]<UL><LI>Max Depth = 12<LI>Call Chain = TimeSet
 </UL>
 <BR>[Called By]<UL><LI><a href="#[41]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;main
@@ -571,7 +571,7 @@ Global Symbols
 <BR>[Called By]<UL><LI><a href="#[41]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;main
 </UL>
 
-<P><STRONG><a name="[41]"></a>main</STRONG> (Thumb, 312 bytes, Stack size 32 bytes, main.o(.text.main))
+<P><STRONG><a name="[41]"></a>main</STRONG> (Thumb, 284 bytes, Stack size 32 bytes, main.o(.text.main))
 <BR><BR>[Stack]<UL><LI>Max Depth = 96<LI>Call Chain = main &rArr; GPIO_Init &rArr; GPIO_PinConfigure &rArr; GPIO_GetPortClockState
 </UL>
 <BR>[Calls]<UL><LI><a href="#[54]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;SystemCoreClockUpdate
